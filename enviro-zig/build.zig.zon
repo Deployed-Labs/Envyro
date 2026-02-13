@@ -1,0 +1,8 @@
+.{
+    .name = "enviro-zig",
+    .version = "0.1.0",
+    .paths = .{
+        "build.zig",
+        "src",
+    },
+}
