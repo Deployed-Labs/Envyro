@@ -218,8 +218,9 @@ class EnvyroAI:
         """
         Generate text using the Transformer model.
         
-        Note: This is a placeholder implementation. In production,
-        you would implement proper tokenization and decoding.
+        WARNING: This is a placeholder implementation. In production,
+        you must implement proper tokenization and decoding.
+        The cognitive_loop is non-functional until tokenization is added.
         
         Args:
             input_text: Input text to generate from
@@ -227,17 +228,17 @@ class EnvyroAI:
             temperature: Sampling temperature
             
         Returns:
-            Generated text
+            Generated text (currently a placeholder)
         """
         self.model.eval()
         
         with torch.no_grad():
-            # Note: This is a simplified placeholder
-            # In production, implement proper tokenization
+            # WARNING: Placeholder - requires tokenization implementation
+            logger.warning("Generation is not yet implemented. Requires tokenizer for production use.")
             logger.info("Generating response (placeholder implementation)...")
             
             # For now, return a placeholder
-            return f"[EnvyroAI Response - Model requires tokenization implementation]"
+            return f"[EnvyroAI Response - Tokenization required for text generation]"
     
     def learn_from_interaction(
         self,

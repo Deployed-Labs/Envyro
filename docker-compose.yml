@@ -6,9 +6,9 @@ services:
     image: ankane/pgvector:latest
     container_name: envyro-postgres
     environment:
-      POSTGRES_DB: envyro
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ${POSTGRES_DB:-envyro}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change_this_password}
     ports:
       - "5432:5432"
     volumes:
@@ -29,9 +29,9 @@ services:
     environment:
       ENVYRO_DB_HOST: postgres
       ENVYRO_DB_PORT: 5432
-      ENVYRO_DB_NAME: envyro
-      ENVYRO_DB_USER: postgres
-      ENVYRO_DB_PASSWORD: postgres
+      ENVYRO_DB_NAME: ${POSTGRES_DB:-envyro}
+      ENVYRO_DB_USER: ${POSTGRES_USER:-postgres}
+      ENVYRO_DB_PASSWORD: ${POSTGRES_PASSWORD:-change_this_password}
       ENVYRO_VOCAB_SIZE: 50000
       ENVYRO_D_MODEL: 512
       ENVYRO_N_HEADS: 8

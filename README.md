@@ -53,24 +53,14 @@ createdb envyro
 psql -d envyro -f init_db.sql
 ```
 
-3. **Configure Environment** (optional)
+3. **Configure Environment**
 ```bash
-# Create .env file
-cat > .env << EOF
-ENVYRO_DB_HOST=localhost
-ENVYRO_DB_PORT=5432
-ENVYRO_DB_NAME=envyro
-ENVYRO_DB_USER=postgres
-ENVYRO_DB_PASSWORD=postgres
+# Copy example environment file
+cp .env.example .env
 
-ENVYRO_VOCAB_SIZE=50000
-ENVYRO_D_MODEL=512
-ENVYRO_N_HEADS=8
-ENVYRO_N_LAYERS=6
-ENVYRO_D_FF=2048
-ENVYRO_MAX_SEQ_LENGTH=512
-ENVYRO_DROPOUT=0.1
-EOF
+# Edit .env and set strong passwords
+# IMPORTANT: Change all passwords before deployment!
+nano .env
 ```
 
 ## Usage
@@ -211,6 +201,39 @@ Configure via environment variables or `EnvyroConfig`:
 - `ENVYRO_DB_NAME`: Database name
 - `ENVYRO_DB_USER`: Database user
 - `ENVYRO_DB_PASSWORD`: Database password
+
+## Security
+
+### Important Security Notes
+
+⚠️ **CRITICAL**: Before deploying to production:
+
+1. **Change Default Passwords**
+   - Update the Admiral password in the database
+   - Use strong, randomly generated passwords
+   - Never commit passwords to version control
+
+2. **Password Hashing**
+   - Admiral password is stored as a bcrypt hash (cost factor 12)
+   - Default hash corresponds to password "admin" - **CHANGE IMMEDIATELY**
+   - Generate new hash: `python -c "import bcrypt; print(bcrypt.hashpw(b'your_password', bcrypt.gensalt(12)).decode())"`
+
+3. **Database Security**
+   - Use environment variables for database credentials
+   - Copy `.env.example` to `.env` and set strong passwords
+   - Never commit `.env` to version control (already in `.gitignore`)
+   - Restrict database access to specific IPs in production
+
+4. **Docker Security**
+   - Set `POSTGRES_PASSWORD` environment variable
+   - Use Docker secrets in production
+   - Don't use default credentials from docker-compose.yml
+
+5. **API Security (Future)**
+   - Implement JWT authentication
+   - Use HTTPS/TLS for all connections
+   - Rate limit API endpoints
+   - Validate and sanitize all user inputs
 
 ## Deployment
 

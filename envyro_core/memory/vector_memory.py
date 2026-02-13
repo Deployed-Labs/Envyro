@@ -69,7 +69,8 @@ class VectorMemory:
         """
         Convert text to vector embedding.
         
-        Note: This is a placeholder implementation using simple hashing.
+        WARNING: This is a placeholder implementation using simple hashing.
+        Semantically similar text will NOT have similar embeddings!
         In production, use a proper embedding model (e.g., sentence-transformers).
         
         Args:
@@ -78,6 +79,9 @@ class VectorMemory:
         Returns:
             Embedding vector of dimension 1536
         """
+        # WARNING: Placeholder implementation - not semantically meaningful!
+        logger.warning("Using placeholder hash-based embeddings. Replace with proper embedding model in production!")
+        
         # Placeholder: Use hash-based embedding for now
         # In production, replace with proper embedding model
         np.random.seed(hash(text) % (2**32))

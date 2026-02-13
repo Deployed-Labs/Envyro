@@ -21,9 +21,12 @@ CREATE TABLE IF NOT EXISTS users (
     role TEXT DEFAULT 'user'        -- 'admiral', 'user', or 'sprout'
 );
 
--- Hardcode the Admiral (Password: admin - hash this later for security!)
+-- Hardcode the Admiral with hashed password
+-- Default password: "admin" (bcrypt hash with cost factor 12)
+-- WARNING: Change this password immediately in production!
+-- To generate a new hash: python -c "import bcrypt; print(bcrypt.hashpw(b'your_password', bcrypt.gensalt(12)).decode())"
 INSERT INTO users (username, password_hash, role) 
-VALUES ('admin', 'admin', 'admiral')
+VALUES ('admin', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYqXfj1K.5W', 'admiral')
 ON CONFLICT (username) DO NOTHING;
 
 -- Create index for faster vector similarity search

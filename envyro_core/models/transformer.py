@@ -206,6 +206,9 @@ class EnvyroTransformer(nn.Module):
         
         # Dropout
         self.dropout = nn.Dropout(dropout)
+        
+        # Cache for causal masks
+        self._mask_cache = {}
     
     def forward(
         self,
@@ -237,16 +240,36 @@ class EnvyroTransformer(nn.Module):
         
         return logits
     
-    def generate_causal_mask(self, seq_len: int) -> torch.Tensor:
+    def generate_causal_mask(self, seq_len: int, device: Optional[torch.device] = None) -> torch.Tensor:
         """
         Generate a causal mask for autoregressive generation.
         Prevents attending to future tokens.
+        Masks are cached to avoid redundant allocations.
         
         Args:
             seq_len: Sequence length
+            device: Device to place the mask on
             
         Returns:
             Causal mask [seq_len, seq_len]
         """
-        mask = torch.tril(torch.ones(seq_len, seq_len))
-        return mask.bool()
+        # Check cache first
+        cache_key = seq_len
+        if cache_key in self._mask_cache:
+            mask = self._mask_cache[cache_key]
+            # Move to device if needed
+            if device is not None and mask.device != device:
+                mask = mask.to(device)
+            return mask
+        
+        # Create new mask
+        mask = torch.tril(torch.ones(seq_len, seq_len, dtype=torch.bool))
+        
+        # Cache it
+        self._mask_cache[cache_key] = mask
+        
+        # Move to device if specified
+        if device is not None:
+            mask = mask.to(device)
+        
+        return mask
