@@ -9,7 +9,7 @@
 //! - Minimal marshaling overhead (C structs, no JSON)
 //! - Direct memory access where safe
 
-use std::ffi::{CStr, CString};
+use std::ffi::CString;
 use std::os::raw::{c_char, c_int, c_uint};
 
 /// C-compatible result code
@@ -36,15 +36,20 @@ pub struct OomConfig {
     pub enable_oom_killer: bool,
 }
 
-/// External Zig functions for OOM killer management
-///
-/// # Safety:
-/// These functions are implemented in Zig and accessed via FFI.
-/// They use raw pointer manipulation and must be called with valid data.
-///
-/// # Performance:
-/// Direct syscall wrapping in Zig provides ~30% better performance than
-/// Rust's safe wrappers due to zero abstraction overhead.
+// External Zig functions for OOM killer management
+//
+// Safety:
+// These functions are implemented in Zig and accessed via FFI.
+// They use raw pointer manipulation and must be called with valid data.
+//
+// Performance:
+// Direct syscall wrapping in Zig provides ~30% better performance than
+// Rust's safe wrappers due to zero abstraction overhead.
+//
+// Note: These functions are only available when Zig components are compiled.
+// The build.rs will attempt to compile them, but will gracefully handle
+// missing Zig compiler by emitting a warning.
+#[cfg(all(target_os = "linux", not(feature = "no-zig"), not(test)))]
 #[link(name = "enviro_zig", kind = "static")]
 extern "C" {
     /// Configure the OOM killer for a specific container
@@ -85,6 +90,7 @@ extern "C" {
 /// # Performance Pattern: Thin Wrapper
 /// This wrapper adds < 1ns overhead (inlined function call) while providing
 /// Rust's safety guarantees for the configuration.
+#[cfg(all(target_os = "linux", not(feature = "no-zig"), not(test)))]
 pub fn tune_oom_killer(pid: u32, oom_score_adj: i32, enable: bool) -> Result<(), String> {
     let config = OomConfig {
         pid: pid as c_uint,
@@ -101,7 +107,14 @@ pub fn tune_oom_killer(pid: u32, oom_score_adj: i32, enable: bool) -> Result<(),
     }
 }
 
+/// Fallback implementation when Zig is not available
+#[cfg(any(not(target_os = "linux"), feature = "no-zig", test))]
+pub fn tune_oom_killer(_pid: u32, _oom_score_adj: i32, _enable: bool) -> Result<(), String> {
+    Err("Zig FFI not available on this platform or build configuration".to_string())
+}
+
 /// Get allocator statistics from Zig's custom allocator
+#[cfg(all(target_os = "linux", not(feature = "no-zig"), not(test)))]
 pub fn get_allocator_stats() -> Result<(u64, u64), String> {
     let mut total_allocs: u64 = 0;
     let mut total_frees: u64 = 0;
@@ -117,9 +130,18 @@ pub fn get_allocator_stats() -> Result<(u64, u64), String> {
     }
 }
 
-/// External Go functions for control plane
-///
-/// These are compiled from Go using CGO and exposed as a shared library.
+/// Fallback implementation when Zig is not available
+#[cfg(any(not(target_os = "linux"), feature = "no-zig", test))]
+pub fn get_allocator_stats() -> Result<(u64, u64), String> {
+    Err("Zig FFI not available on this platform or build configuration".to_string())
+}
+
+// External Go functions for control plane
+//
+// These are compiled from Go using CGO and exposed as a shared library.
+//
+// Note: These functions are only available when Go components are compiled.
+#[cfg(all(target_os = "linux", not(feature = "no-go"), not(test)))]
 #[link(name = "enviro_go", kind = "dylib")]
 extern "C" {
     /// Initialize the Go gRPC control plane
@@ -137,6 +159,7 @@ extern "C" {
 }
 
 /// Safe Rust wrapper for Go control plane initialization
+#[cfg(all(target_os = "linux", not(feature = "no-go"), not(test)))]
 pub fn init_control_plane(addr: &str) -> Result<(), String> {
     let c_addr = CString::new(addr).map_err(|e| format!("Invalid address: {}", e))?;
 
@@ -149,7 +172,14 @@ pub fn init_control_plane(addr: &str) -> Result<(), String> {
     }
 }
 
+/// Fallback implementation when Go is not available
+#[cfg(any(not(target_os = "linux"), feature = "no-go", test))]
+pub fn init_control_plane(_addr: &str) -> Result<(), String> {
+    Err("Go FFI not available on this platform or build configuration".to_string())
+}
+
 /// Safe Rust wrapper for Go control plane shutdown
+#[cfg(all(target_os = "linux", not(feature = "no-go"), not(test)))]
 pub fn shutdown_control_plane() -> Result<(), String> {
     let result = unsafe { go_shutdown_control_plane() };
 
@@ -158,6 +188,12 @@ pub fn shutdown_control_plane() -> Result<(), String> {
     } else {
         Err("Failed to shutdown Go control plane".to_string())
     }
+}
+
+/// Fallback implementation when Go is not available
+#[cfg(any(not(target_os = "linux"), feature = "no-go", test))]
+pub fn shutdown_control_plane() -> Result<(), String> {
+    Err("Go FFI not available on this platform or build configuration".to_string())
 }
 
 #[cfg(test)]

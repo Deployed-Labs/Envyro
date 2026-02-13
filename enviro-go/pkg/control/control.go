@@ -17,18 +17,16 @@ package main
 
 // FFI result codes matching Rust
 typedef int ffi_result;
-const ffi_result FFI_SUCCESS = 0;
-const ffi_result FFI_ERROR = -1;
+#define FFI_SUCCESS 0
+#define FFI_ERROR -1
 */
 import "C"
 
 import (
-	"context"
 	"fmt"
 	"log"
 	"net"
 	"sync"
-	"unsafe"
 
 	"google.golang.org/grpc"
 )

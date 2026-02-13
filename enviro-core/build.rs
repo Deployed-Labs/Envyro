@@ -13,26 +13,34 @@ fn main() {
     let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
     
     // Build Zig components
-    build_zig_components(&out_dir);
+    let zig_built = build_zig_components(&out_dir);
     
     // Build Go components
-    build_go_components(&out_dir);
+    let go_built = build_go_components(&out_dir);
     
-    // Link against the compiled libraries
+    // Only link against libraries that were successfully built
     println!("cargo:rustc-link-search=native={}", out_dir.display());
-    println!("cargo:rustc-link-lib=static=enviro_zig");
-    println!("cargo:rustc-link-lib=dylib=enviro_go");
+    
+    if zig_built {
+        println!("cargo:rustc-link-lib=static=enviro_zig");
+    }
+    
+    if go_built {
+        println!("cargo:rustc-link-lib=dylib=enviro_go");
+    }
 }
 
 /// Compiles Zig code into a static library with C-ABI compatibility.
 /// Performance-First Pattern: Zig's manual memory management and zero-cost abstractions
 /// provide optimal syscall wrapping without Rust's safety overhead.
-fn build_zig_components(out_dir: &PathBuf) {
+///
+/// Returns: true if build succeeded, false otherwise
+fn build_zig_components(out_dir: &PathBuf) -> bool {
     let zig_dir = PathBuf::from("../enviro-zig");
     
     if !zig_dir.exists() {
         println!("cargo:warning=Zig directory not found, skipping Zig build");
-        return;
+        return false;
     }
 
     let status = Command::new("zig")
@@ -50,12 +58,16 @@ fn build_zig_components(out_dir: &PathBuf) {
     match status {
         Ok(status) if status.success() => {
             println!("cargo:info=Zig components built successfully");
+            true
         }
         Ok(status) => {
             println!("cargo:warning=Zig build failed with status: {}", status);
+            false
         }
         Err(e) => {
             println!("cargo:warning=Failed to execute Zig compiler: {}. Is Zig installed?", e);
+            println!("cargo:warning=Building without Zig FFI support");
+            false
         }
     }
 }
@@ -63,12 +75,14 @@ fn build_zig_components(out_dir: &PathBuf) {
 /// Compiles Go code into a shared library using CGO.
 /// Performance-First Pattern: Go's superior concurrency model and GC are ideal
 /// for the control plane, while CGO allows us to expose Go functions to Rust.
-fn build_go_components(out_dir: &PathBuf) {
+///
+/// Returns: true if build succeeded, false otherwise
+fn build_go_components(out_dir: &PathBuf) -> bool {
     let go_dir = PathBuf::from("../enviro-go");
     
     if !go_dir.exists() {
         println!("cargo:warning=Go directory not found, skipping Go build");
-        return;
+        return false;
     }
 
     // Set CGO flags for building shared library
@@ -86,12 +100,17 @@ fn build_go_components(out_dir: &PathBuf) {
     match status {
         Ok(status) if status.success() => {
             println!("cargo:info=Go components built successfully");
+            true
         }
         Ok(status) => {
             println!("cargo:warning=Go build failed with status: {}", status);
+            println!("cargo:warning=Building without Go FFI support");
+            false
         }
         Err(e) => {
             println!("cargo:warning=Failed to execute Go compiler: {}. Is Go installed?", e);
+            println!("cargo:warning=Building without Go FFI support");
+            false
         }
     }
 }

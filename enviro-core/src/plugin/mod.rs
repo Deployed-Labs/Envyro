@@ -12,7 +12,6 @@ use anyhow::{Context, Result};
 use libloading::{Library, Symbol};
 use std::collections::HashMap;
 use std::path::PathBuf;
-use std::sync::Arc;
 use tracing::{debug, info, warn};
 
 use crate::executor::Executor;
@@ -162,7 +161,10 @@ impl PluginRegistry {
     pub fn discover_plugins(&mut self) -> Result<Vec<String>> {
         let mut discovered = Vec::new();
 
-        for search_path in &self.search_paths {
+        // Clone search paths to avoid borrow issues
+        let search_paths = self.search_paths.clone();
+        
+        for search_path in &search_paths {
             if !search_path.exists() {
                 debug!("Search path {:?} does not exist, skipping", search_path);
                 continue;

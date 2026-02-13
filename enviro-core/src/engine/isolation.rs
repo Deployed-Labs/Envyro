@@ -10,10 +10,8 @@
 //! - Zero-copy /proc filesystem interactions via io_uring
 
 use anyhow::{Context, Result};
-use nix::sched::{clone, CloneFlags};
-use nix::unistd::{Gid, Uid};
-use std::fs::{self, File, OpenOptions};
-use std::io::Write;
+use nix::sched::CloneFlags;
+use std::fs::{self};
 use std::os::unix::process::CommandExt;
 use std::process::Command;
 use tracing::{debug, info};
