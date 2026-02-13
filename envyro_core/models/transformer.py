@@ -253,9 +253,11 @@ class EnvyroTransformer(nn.Module):
         Returns:
             Causal mask [seq_len, seq_len]
         """
-        # Include device in cache key
-        device_str = str(device) if device is not None else 'cpu'
-        cache_key = (seq_len, device_str)
+        # Create cache key using device type and index for reliability
+        device_key = 'cpu'
+        if device is not None:
+            device_key = f"{device.type}:{device.index if device.index is not None else 0}"
+        cache_key = (seq_len, device_key)
         
         # Check cache first
         if cache_key in self._mask_cache:

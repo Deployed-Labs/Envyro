@@ -219,8 +219,14 @@ Configure via environment variables or `EnvyroConfig`:
    - Never use "admin" as the password
 
 2. **Password Hashing**
-   - Admiral password is stored as a bcrypt hash (cost factor 12)
-   - Manual hash generation: `python -c "import bcrypt; print(bcrypt.hashpw(b'your_password', bcrypt.gensalt(12)).decode())"`
+   - Admiral password is stored as a bcrypt hash (cost factor 12, configurable via BCRYPT_COST_FACTOR)
+   - Manual hash generation (secure method):
+     ```python
+     import bcrypt
+     import getpass
+     password = getpass.getpass("Enter password: ")
+     print(bcrypt.hashpw(password.encode(), bcrypt.gensalt(12)).decode())
+     ```
 
 3. **Database Security**
    - Use environment variables for database credentials

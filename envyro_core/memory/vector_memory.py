@@ -36,6 +36,7 @@ class VectorMemory:
         """
         if db_config is None:
             # Default configuration
+            logger.warning("Using default database configuration. Set ENVYRO_DB_* environment variables for production.")
             db_config = {
                 'host': 'localhost',
                 'port': 5432,

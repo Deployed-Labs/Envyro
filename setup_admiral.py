@@ -31,8 +31,11 @@ def get_db_config():
 
 def create_admiral(connection, username, password):
     """Create Admiral account with bcrypt-hashed password."""
+    # Get bcrypt cost factor from environment or use default
+    cost_factor = int(os.getenv('BCRYPT_COST_FACTOR', '12'))
+    
     # Hash the password
-    password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt(12))
+    password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt(cost_factor))
     
     try:
         with connection.cursor() as cursor:

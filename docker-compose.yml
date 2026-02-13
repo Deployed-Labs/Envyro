@@ -8,7 +8,9 @@ services:
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-envyro}
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change_this_password}
+      # CRITICAL: Set POSTGRES_PASSWORD environment variable before running
+      # Never use the weak default below in production!
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
     ports:
       - "5432:5432"
     volumes:
@@ -31,7 +33,8 @@ services:
       ENVYRO_DB_PORT: 5432
       ENVYRO_DB_NAME: ${POSTGRES_DB:-envyro}
       ENVYRO_DB_USER: ${POSTGRES_USER:-postgres}
-      ENVYRO_DB_PASSWORD: ${POSTGRES_PASSWORD:-change_this_password}
+      # CRITICAL: Set POSTGRES_PASSWORD environment variable before running
+      ENVYRO_DB_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}
       ENVYRO_VOCAB_SIZE: 50000
       ENVYRO_D_MODEL: 512
       ENVYRO_N_HEADS: 8
