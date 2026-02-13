@@ -36,6 +36,15 @@ parts/
 sdist/
 var/
 wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
 pip-wheel-metadata/
 share/python-wheels/
 *.egg-info/
@@ -56,6 +65,28 @@ venv.bak/
 *.swp
 *.swo
 *~
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Model weights and data
+*.pt
+*.pth
+*.ckpt
+weights/
+
+# Logs
+*.log
+
+# Environment
+.env
+.env.local
+
+# OS
+.DS_Store
+Thumbs.db
 .DS_Store
 
 # Build artifacts
