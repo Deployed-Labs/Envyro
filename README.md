@@ -124,7 +124,7 @@ if ai.memory:
 ## Project Structure
 
 ```
-Enviro/
+Envyro/
 ├── envyro_core/           # Core AI package
 │   ├── __init__.py
 │   ├── envyro_ai.py       # Main EnvyroAI class
