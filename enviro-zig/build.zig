@@ -12,11 +12,8 @@ pub fn build(b: *std.Build) void {
         .optimize = optimize,
     });
 
-    // Add allocator as additional source
-    lib.addCSourceFile(.{
-        .file = .{ .path = "src/allocator.zig" },
-        .flags = &[_][]const u8{},
-    });
+    // The allocator module will be imported by oom_tuner.zig if needed
+    // No need to add it as a separate source file
 
     b.installArtifact(lib);
 
