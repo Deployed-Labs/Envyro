@@ -7,6 +7,10 @@ use std::process::Command;
 /// 2. Go components (gRPC control plane and eBPF networking)
 /// into a unified binary that Rust can link against.
 fn main() {
+    // Tell Cargo about our custom cfg flags
+    println!("cargo:rustc-check-cfg=cfg(zig_available)");
+    println!("cargo:rustc-check-cfg=cfg(go_available)");
+    
     println!("cargo:rerun-if-changed=../enviro-zig/");
     println!("cargo:rerun-if-changed=../enviro-go/");
 
@@ -21,12 +25,15 @@ fn main() {
     // Only link against libraries that were successfully built
     println!("cargo:rustc-link-search=native={}", out_dir.display());
     
+    // Emit configuration flags based on what was built
     if zig_built {
         println!("cargo:rustc-link-lib=static=enviro_zig");
+        println!("cargo:rustc-cfg=zig_available");
     }
     
     if go_built {
         println!("cargo:rustc-link-lib=dylib=enviro_go");
+        println!("cargo:rustc-cfg=go_available");
     }
 }
 
