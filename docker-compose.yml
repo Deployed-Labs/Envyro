@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  # PostgreSQL with pgvector extension
+  postgres:
+    image: ankane/pgvector:latest
+    container_name: envyro-postgres
+    environment:
+      POSTGRES_DB: envyro
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init_db.sql:/docker-entrypoint-initdb.d/init_db.sql
+    networks:
+      - envyro-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Envyro-Core Neural Engine
+  envyro-core:
+    build: .
+    container_name: envyro-core
+    environment:
+      ENVYRO_DB_HOST: postgres
+      ENVYRO_DB_PORT: 5432
+      ENVYRO_DB_NAME: envyro
+      ENVYRO_DB_USER: postgres
+      ENVYRO_DB_PASSWORD: postgres
+      ENVYRO_VOCAB_SIZE: 50000
+      ENVYRO_D_MODEL: 512
+      ENVYRO_N_HEADS: 8
+      ENVYRO_N_LAYERS: 6
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - envyro-network
+    volumes:
+      - ./envyro_core:/app/envyro_core
+      - model_weights:/app/weights
+
+volumes:
+  postgres_data:
+  model_weights:
+
+networks:
+  envyro-network:
+    driver: bridge
