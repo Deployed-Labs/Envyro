@@ -27,18 +27,18 @@ CREATE INDEX IF NOT EXISTS users_role_idx ON users(role);
 
 -- Admiral Account Setup
 -- =====================
--- SECURITY WARNING: The default Admiral account should be created manually in production.
+-- SECURITY: No default Admiral account is created for security reasons.
 -- 
--- For development/testing only, uncomment the following line to create an Admiral with password "admin":
--- (The hash below is bcrypt of "admin" with cost factor 12)
+-- Use the setup_admiral.py script to create an Admiral account:
+--   python setup_admiral.py
 --
--- INSERT INTO users (username, password_hash, role) 
--- VALUES ('admin', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYqXfj1K.5W', 'admiral')
--- ON CONFLICT (username) DO NOTHING;
+-- For manual creation in development/testing only:
+--   1. Generate a bcrypt hash: 
+--      python -c "import bcrypt; print(bcrypt.hashpw(b'YOUR_PASSWORD', bcrypt.gensalt(12)).decode())"
+--   2. INSERT INTO users (username, password_hash, role) 
+--      VALUES ('your_username', 'YOUR_BCRYPT_HASH', 'admiral');
 --
--- For production, create the Admiral manually with a strong password:
--- 1. Generate a bcrypt hash: python -c "import bcrypt; print(bcrypt.hashpw(b'YOUR_STRONG_PASSWORD', bcrypt.gensalt(12)).decode())"
--- 2. INSERT INTO users (username, password_hash, role) VALUES ('admin', 'YOUR_HASH_HERE', 'admiral');
+-- NEVER use weak passwords like 'admin', 'password', etc.
 
 -- Grant necessary permissions (adjust as needed for your environment)
 -- GRANT ALL PRIVILEGES ON TABLE envyro_knowledge TO your_user;

@@ -166,9 +166,10 @@ The Admiral has complete "God Mode" over:
 - **Knowledge Base**: Add, delete, and clear memories
 - **User Management**: Control access privileges
 
-Default Admiral credentials:
-- Username: `admin`
-- Password: `admin` (⚠️ Change in production!)
+**Creating an Admiral Account:**
+- No default Admiral account exists for security
+- Use `setup_admiral.py` to create an Admiral with a strong password
+- Minimum 8-character password required
 
 ## Database Schema
 

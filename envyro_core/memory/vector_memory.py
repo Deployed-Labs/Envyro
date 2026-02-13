@@ -169,28 +169,28 @@ class VectorMemory:
                 embedding_list = query_embedding.tolist()
                 
                 # Use pgvector's cosine similarity operator (<=>)
-                # Compute similarity once using a subquery for efficiency
+                # Use CTE to compute distance once and derive similarity
                 cursor.execute("""
-                    SELECT 
-                        id,
-                        content,
-                        created_by,
-                        created_at,
-                        similarity
-                    FROM (
+                    WITH distances AS (
                         SELECT 
                             id,
                             content,
                             created_by,
                             created_at,
-                            1 - (embedding <=> %s::vector) AS similarity,
                             embedding <=> %s::vector AS distance
                         FROM envyro_knowledge
-                    ) subq
-                    WHERE similarity >= %s
+                    )
+                    SELECT 
+                        id,
+                        content,
+                        created_by,
+                        created_at,
+                        1 - distance AS similarity
+                    FROM distances
+                    WHERE 1 - distance >= %s
                     ORDER BY distance
                     LIMIT %s
-                """, (embedding_list, embedding_list, similarity_threshold, top_k))
+                """, (embedding_list, similarity_threshold, top_k))
                 
                 results = cursor.fetchall()
                 
