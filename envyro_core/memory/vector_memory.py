@@ -46,6 +46,7 @@ class VectorMemory:
         
         self.db_config = db_config
         self.connection = None
+        self._embedding_warning_shown = False  # Track if warning has been shown
         
         try:
             self._connect()
@@ -80,7 +81,9 @@ class VectorMemory:
             Embedding vector of dimension 1536
         """
         # WARNING: Placeholder implementation - not semantically meaningful!
-        logger.warning("Using placeholder hash-based embeddings. Replace with proper embedding model in production!")
+        if not self._embedding_warning_shown:
+            logger.warning("Using placeholder hash-based embeddings. Replace with proper embedding model in production!")
+            self._embedding_warning_shown = True
         
         # Placeholder: Use hash-based embedding for now
         # In production, replace with proper embedding model
@@ -166,18 +169,28 @@ class VectorMemory:
                 embedding_list = query_embedding.tolist()
                 
                 # Use pgvector's cosine similarity operator (<=>)
+                # Compute similarity once using a subquery for efficiency
                 cursor.execute("""
                     SELECT 
                         id,
                         content,
                         created_by,
                         created_at,
-                        1 - (embedding <=> %s::vector) AS similarity
-                    FROM envyro_knowledge
-                    WHERE 1 - (embedding <=> %s::vector) >= %s
-                    ORDER BY embedding <=> %s::vector
+                        similarity
+                    FROM (
+                        SELECT 
+                            id,
+                            content,
+                            created_by,
+                            created_at,
+                            1 - (embedding <=> %s::vector) AS similarity,
+                            embedding <=> %s::vector AS distance
+                        FROM envyro_knowledge
+                    ) subq
+                    WHERE similarity >= %s
+                    ORDER BY distance
                     LIMIT %s
-                """, (embedding_list, embedding_list, similarity_threshold, embedding_list, top_k))
+                """, (embedding_list, embedding_list, similarity_threshold, top_k))
                 
                 results = cursor.fetchall()
                 

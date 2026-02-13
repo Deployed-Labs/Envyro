@@ -51,6 +51,9 @@ createdb envyro
 
 # Initialize database schema
 psql -d envyro -f init_db.sql
+
+# Create Admiral account (interactive)
+python setup_admiral.py
 ```
 
 3. **Configure Environment**
@@ -208,15 +211,15 @@ Configure via environment variables or `EnvyroConfig`:
 
 ⚠️ **CRITICAL**: Before deploying to production:
 
-1. **Change Default Passwords**
-   - Update the Admiral password in the database
-   - Use strong, randomly generated passwords
-   - Never commit passwords to version control
+1. **Admiral Account Setup**
+   - Use `setup_admiral.py` to create Admiral account with strong password
+   - No default Admiral account is created by init_db.sql
+   - Minimum 8 character password required
+   - Never use "admin" as the password
 
 2. **Password Hashing**
    - Admiral password is stored as a bcrypt hash (cost factor 12)
-   - Default hash corresponds to password "admin" - **CHANGE IMMEDIATELY**
-   - Generate new hash: `python -c "import bcrypt; print(bcrypt.hashpw(b'your_password', bcrypt.gensalt(12)).decode())"`
+   - Manual hash generation: `python -c "import bcrypt; print(bcrypt.hashpw(b'your_password', bcrypt.gensalt(12)).decode())"`
 
 3. **Database Security**
    - Use environment variables for database credentials

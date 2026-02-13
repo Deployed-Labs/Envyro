@@ -253,23 +253,22 @@ class EnvyroTransformer(nn.Module):
         Returns:
             Causal mask [seq_len, seq_len]
         """
+        # Include device in cache key
+        device_str = str(device) if device is not None else 'cpu'
+        cache_key = (seq_len, device_str)
+        
         # Check cache first
-        cache_key = seq_len
         if cache_key in self._mask_cache:
-            mask = self._mask_cache[cache_key]
-            # Move to device if needed
-            if device is not None and mask.device != device:
-                mask = mask.to(device)
-            return mask
+            return self._mask_cache[cache_key]
         
         # Create new mask
         mask = torch.tril(torch.ones(seq_len, seq_len, dtype=torch.bool))
         
-        # Cache it
-        self._mask_cache[cache_key] = mask
-        
         # Move to device if specified
         if device is not None:
             mask = mask.to(device)
+        
+        # Cache it
+        self._mask_cache[cache_key] = mask
         
         return mask

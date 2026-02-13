@@ -21,24 +21,25 @@ CREATE TABLE IF NOT EXISTS users (
     role TEXT DEFAULT 'user'        -- 'admiral', 'user', or 'sprout'
 );
 
--- Hardcode the Admiral with hashed password
--- Default password: "admin" (bcrypt hash with cost factor 12)
--- WARNING: Change this password immediately in production!
--- To generate a new hash: python -c "import bcrypt; print(bcrypt.hashpw(b'your_password', bcrypt.gensalt(12)).decode())"
-INSERT INTO users (username, password_hash, role) 
-VALUES ('admin', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYqXfj1K.5W', 'admiral')
-ON CONFLICT (username) DO NOTHING;
-
--- Create index for faster vector similarity search
-CREATE INDEX IF NOT EXISTS envyro_knowledge_embedding_idx 
-ON envyro_knowledge 
-USING ivfflat (embedding vector_cosine_ops)
-WITH (lists = 100);
-
 -- Create index for faster user lookups
 CREATE INDEX IF NOT EXISTS users_username_idx ON users(username);
 CREATE INDEX IF NOT EXISTS users_role_idx ON users(role);
 
--- Grant necessary permissions (adjust as needed)
+-- Admiral Account Setup
+-- =====================
+-- SECURITY WARNING: The default Admiral account should be created manually in production.
+-- 
+-- For development/testing only, uncomment the following line to create an Admiral with password "admin":
+-- (The hash below is bcrypt of "admin" with cost factor 12)
+--
+-- INSERT INTO users (username, password_hash, role) 
+-- VALUES ('admin', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewY5GyYqXfj1K.5W', 'admiral')
+-- ON CONFLICT (username) DO NOTHING;
+--
+-- For production, create the Admiral manually with a strong password:
+-- 1. Generate a bcrypt hash: python -c "import bcrypt; print(bcrypt.hashpw(b'YOUR_STRONG_PASSWORD', bcrypt.gensalt(12)).decode())"
+-- 2. INSERT INTO users (username, password_hash, role) VALUES ('admin', 'YOUR_HASH_HERE', 'admiral');
+
+-- Grant necessary permissions (adjust as needed for your environment)
 -- GRANT ALL PRIVILEGES ON TABLE envyro_knowledge TO your_user;
 -- GRANT ALL PRIVILEGES ON TABLE users TO your_user;

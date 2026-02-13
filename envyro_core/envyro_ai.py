@@ -84,6 +84,9 @@ class EnvyroAI:
         self.vocab_size = vocab_size
         self.max_seq_length = max_seq_length
         
+        # Track if warnings have been shown
+        self._generation_warning_shown = False
+        
         logger.info(f"EnvyroAI initialized with {self._count_parameters():,} parameters")
     
     def _initialize_weights(self):
@@ -234,7 +237,9 @@ class EnvyroAI:
         
         with torch.no_grad():
             # WARNING: Placeholder - requires tokenization implementation
-            logger.warning("Generation is not yet implemented. Requires tokenizer for production use.")
+            if not self._generation_warning_shown:
+                logger.warning("Generation is not yet implemented. Requires tokenizer for production use.")
+                self._generation_warning_shown = True
             logger.info("Generating response (placeholder implementation)...")
             
             # For now, return a placeholder
