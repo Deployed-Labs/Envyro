@@ -8,6 +8,7 @@ import torch.nn as nn
 import numpy as np
 from typing import List, Dict, Optional, Tuple
 import logging
+from collections import defaultdict
 
 from .models.transformer import EnvyroTransformer
 from .memory.vector_memory import VectorMemory
@@ -25,6 +26,25 @@ class EnvyroAI:
     - Vectorized memory retrieval from PostgreSQL + pgvector
     - Cognitive Loop: Query memory before generating responses
     """
+    
+    # Persona definitions for different club roles
+    PERSONA_PROMPTS = {
+        "admiral": (
+            "You are the Envyro Admiral (God Mode). You have full access to the AI's neural weights "
+            "and long-term memory. Your tone is authoritative, highly technical, and precise. "
+            "Focus on system optimization and neural management."
+        ),
+        "user": (
+            "You are the Envyro Assistant, a helpful and knowledgeable guide for the Digital Oasis "
+            "club members. Your tone is friendly, welcoming, and informative. "
+            "Help members navigate the ecosystem and enjoy the club."
+        ),
+        "sprout": (
+            "You are the Envyro Nurturer. Your role is to guide 'Sprouts' (new club members). "
+            "Your tone is warm, encouraging, and simple. Explain concepts carefully "
+            "and help them grow within the Digital Oasis."
+        )
+    }
     
     def __init__(
         self,
@@ -84,10 +104,19 @@ class EnvyroAI:
         self.vocab_size = vocab_size
         self.max_seq_length = max_seq_length
         
+        # Session history management: Dict[session_id, List[Dict[role, content]]]
+        self.sessions = defaultdict(list)
+        
         # Track if warnings have been shown
         self._generation_warning_shown = False
         
         logger.info(f"EnvyroAI initialized with {self._count_parameters():,} parameters")
+    
+    def clear_session(self, session_id: str):
+        """Clear conversation history for a specific session."""
+        if session_id in self.sessions:
+            del self.sessions[session_id]
+            logger.info(f"Cleared session history for: {session_id}")
     
     def _initialize_weights(self):
         """
@@ -168,14 +197,16 @@ class EnvyroAI:
         input_text: str,
         max_length: int = 100,
         temperature: float = 0.8,
-        use_memory: bool = True
+        use_memory: bool = True,
+        user_role: str = "user",
+        session_id: Optional[str] = None
     ) -> str:
         """
-        The Cognitive Loop: Query memory, then generate response.
+        The Cognitive Loop: Query memory, then generate response with persona and history.
         
         This is the core interaction pattern:
         1. Recall relevant memories from pgvector
-        2. Incorporate context into generation
+        2. Incorporate session history and persona instructions
         3. Generate response using the Transformer
         
         Args:
@@ -183,11 +214,13 @@ class EnvyroAI:
             max_length: Maximum length of generated response
             temperature: Sampling temperature for generation
             use_memory: Whether to use memory recall
+            user_role: Role of the user ('admiral', 'user', 'sprout')
+            session_id: Unique identifier for conversation session
             
         Returns:
             Generated response text
         """
-        logger.info("Starting Cognitive Loop...")
+        logger.info(f"Starting Cognitive Loop for role: {user_role}...")
         
         # Step 1: Recall relevant memories
         context = []
@@ -198,16 +231,39 @@ class EnvyroAI:
             if context:
                 logger.info(f"Using {len(context)} memories as context")
         
-        # Step 2: Prepare input with context
-        if context:
-            # Prepend context to input
-            context_text = "\n".join(context)
-            full_input = f"Context:\n{context_text}\n\nQuery: {input_text}\n\nResponse:"
-        else:
-            full_input = f"Query: {input_text}\n\nResponse:"
+        # Step 2: Prepare session history
+        history_text = ""
+        if session_id:
+            session_history = self.sessions[session_id]
+            if session_history:
+                # Format last 5 interactions
+                history_entries = []
+                for entry in session_history[-5:]:
+                    history_entries.append(f"{entry['role'].capitalize()}: {entry['content']}")
+                history_text = "\n".join(history_entries)
+                logger.info(f"Using session history with {len(session_history)} previous interactions")
+
+        # Step 3: Build Prompt based on Persona
+        persona_prompt = self.PERSONA_PROMPTS.get(user_role, self.PERSONA_PROMPTS["user"])
         
-        # Step 3: Generate response
-        response = self._generate(full_input, max_length, temperature)
+        full_prompt = f"System: {persona_prompt}\n\n"
+        
+        if context:
+            context_text = "\n".join(context)
+            full_prompt += f"Background Context:\n{context_text}\n\n"
+        
+        if history_text:
+            full_prompt += f"Recent Conversation History:\n{history_text}\n\n"
+        
+        full_prompt += f"Current Input: {input_text}\n\nResponse:"
+        
+        # Step 4: Generate response
+        response = self._generate(full_prompt, max_length, temperature)
+        
+        # Step 5: Update session history
+        if session_id:
+            self.sessions[session_id].append({"role": "user", "content": input_text})
+            self.sessions[session_id].append({"role": "assistant", "content": response})
         
         logger.info("Cognitive Loop complete")
         return response
@@ -249,22 +305,25 @@ class EnvyroAI:
         self,
         query: str,
         response: str,
-        user_role: str = "user"
+        user_role: str = "user",
+        member_id: Optional[str] = None
     ):
         """
-        Learn from Admiral interactions by storing them in Long-Term Memory.
+        Learn from interactions by storing them in Long-Term Memory.
         
         Args:
             query: The user's query
             response: The AI's response
             user_role: Role of the user ('admiral', 'user', 'sprout')
+            member_id: Optional club member identifier
         """
         if self.memory is None:
             logger.warning("Vector memory not initialized. Cannot store interaction.")
             return
         
-        # Store the interaction in vector memory
-        interaction_text = f"Q: {query}\nA: {response}"
+        # Store the interaction in vector memory with member context
+        member_info = f" [Member: {member_id}]" if member_id else ""
+        interaction_text = f"Role: {user_role}{member_info}\nQ: {query}\nA: {response}"
         
         try:
             self.memory.store(
