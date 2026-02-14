@@ -101,3 +101,6 @@ coverage/
 # Temporary files
 /tmp/
 *.tmp
+
+# Web/Flask uploads
+uploads/

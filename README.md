@@ -1,6 +1,6 @@
 # Envyro-Core 🌳
 
-**The Brain of the Envyro AI Ecosystem**
+## The Brain of the Envyro AI Ecosystem
 
 A proprietary, self-learning AI with vectorized Long-Term Memory for the "Digital Oasis" club environment (envyro.club).
 
@@ -19,12 +19,14 @@ Envyro-Core is a custom Transformer-based Language Model with an integrated Long
 ## Architecture
 
 ### The Brain (EnvyroAI)
+
 - Custom Transformer-based LLM (PyTorch/NumPy)
 - Multi-head attention mechanism
 - Position-wise feed-forward networks
 - Configurable depth and dimensions
 
 ### The Memory (VectorMemory)
+
 - PostgreSQL with pgvector extension
 - 1536-dimensional embeddings
 - Cosine similarity search
@@ -33,6 +35,7 @@ Envyro-Core is a custom Transformer-based Language Model with an integrated Long
 ## Installation
 
 ### Prerequisites
+
 - Python 3.8+
 - PostgreSQL 12+ with pgvector extension
 - CUDA (optional, for GPU acceleration)
@@ -40,11 +43,13 @@ Envyro-Core is a custom Transformer-based Language Model with an integrated Long
 ### Quick Start
 
 1. **Install Dependencies**
+
 ```bash
 pip install -r requirements.txt
 ```
 
-2. **Set Up Database**
+1. **Set Up Database**
+
 ```bash
 # Create PostgreSQL database
 createdb envyro
@@ -56,7 +61,8 @@ psql -d envyro -f init_db.sql
 python setup_admiral.py
 ```
 
-3. **Configure Environment**
+1. **Configure Environment**
+
 ```bash
 # Copy example environment file
 cp .env.example .env
@@ -65,6 +71,20 @@ cp .env.example .env
 # IMPORTANT: Change all passwords before deployment!
 nano .env
 ```
+
+1. **Launch Envyro Web Interface (Recommended)**
+
+```bash
+# Start the web-based launcher
+python launch.py
+```
+
+The Envyro Web Launcher provides a browser-based interface to:
+
+- **Start/Stop Services**: Control PostgreSQL and Envyro-Core containers
+- **Upload Files**: Add files for AI processing via drag & drop
+- **Configure Settings**: Manage environment variables and model parameters
+- **Monitor System**: View real-time logs and system status
 
 ## Usage
 
@@ -104,6 +124,38 @@ ai.learn_from_interaction(
 python example.py
 ```
 
+### Web Launcher Features
+
+The Envyro Web Launcher (`python launch.py`) provides four main tabs:
+
+#### 🚀 Services Tab
+
+- **Service Management**: Start, stop, and restart individual services
+- **Status Monitoring**: Real-time status of PostgreSQL and Envyro-Core containers
+- **Global Controls**: Start/stop all services at once
+- **Visual Status**: Color-coded service status indicators
+
+#### 📁 Files Tab
+
+- **Drag & Drop Upload**: Upload files by dragging them into the browser
+- **File Management**: View, remove, and organize uploaded files
+- **AI Processing**: Process uploaded files with Envyro AI
+- **Supported Formats**: Text, Python, JSON, Markdown, PDF, and images
+
+#### ⚙️ Configuration Tab
+
+- **Environment Variables**: Edit database and model configuration
+- **Save/Load Settings**: Persist configuration changes
+- **Reset to Defaults**: Restore original settings
+- **Real-time Updates**: Changes apply immediately
+
+#### 💻 Console Tab
+
+- **System Output**: View all launcher operations and logs
+- **Test Runner**: Execute the comprehensive test suite
+- **Command History**: Track all operations performed
+- **Auto-refresh**: Logs update automatically
+
 ### Admiral Operations (God Mode)
 
 ```python
@@ -122,6 +174,23 @@ if ai.memory:
 ```
 
 ## Project Structure
+
+Envyro/
+├── envyro_core/           # Core AI package
+│   ├── **init**.py
+│   ├── envyro_ai.py       # Main EnvyroAI class
+│   ├── config.py          # Configuration
+│   ├── models/            # Neural network models
+│   │   ├── **init**.py
+│   │   └── transformer.py # Custom Transformer
+│   ├── memory/            # Long-Term Memory
+│   │   ├── **init**.py
+│   │   └── vector_memory.py
+│   └── utils/             # Utilities
+├── requirements.txt       # Python dependencies
+├── init_db.sql           # Database schema
+├── example.py            # Usage example
+└── README.md             # This file
 
 ```
 Envyro/
@@ -162,11 +231,13 @@ response = ai.cognitive_loop("What is consciousness?")
 ## The Admiral System
 
 The Admiral has complete "God Mode" over:
+
 - **Neural Weights**: Save, load, and prune model parameters
 - **Knowledge Base**: Add, delete, and clear memories
 - **User Management**: Control access privileges
 
 **Creating an Admiral Account:**
+
 - No default Admiral account exists for security
 - Use `setup_admiral.py` to create an Admiral with a strong password
 - Minimum 8-character password required
@@ -174,6 +245,7 @@ The Admiral has complete "God Mode" over:
 ## Database Schema
 
 ### envyro_knowledge
+
 - `id`: Serial primary key
 - `content`: Text content
 - `embedding`: Vector(1536) - semantic embedding
@@ -181,6 +253,7 @@ The Admiral has complete "God Mode" over:
 - `created_at`: Timestamp
 
 ### users
+
 - `id`: Serial primary key
 - `username`: Unique username
 - `password_hash`: Password hash
@@ -191,6 +264,7 @@ The Admiral has complete "God Mode" over:
 Configure via environment variables or `EnvyroConfig`:
 
 ### Model Parameters
+
 - `ENVYRO_VOCAB_SIZE`: Vocabulary size (default: 50000)
 - `ENVYRO_D_MODEL`: Model dimension (default: 512)
 - `ENVYRO_N_HEADS`: Number of attention heads (default: 8)
@@ -200,6 +274,7 @@ Configure via environment variables or `EnvyroConfig`:
 - `ENVYRO_DROPOUT`: Dropout rate (default: 0.1)
 
 ### Database Parameters
+
 - `ENVYRO_DB_HOST`: Database host
 - `ENVYRO_DB_PORT`: Database port
 - `ENVYRO_DB_NAME`: Database name
@@ -221,6 +296,7 @@ Configure via environment variables or `EnvyroConfig`:
 2. **Password Hashing**
    - Admiral password is stored as a bcrypt hash (cost factor 12, configurable via BCRYPT_COST_FACTOR)
    - Manual hash generation (secure method):
+
      ```python
      import bcrypt
      import getpass
@@ -248,11 +324,13 @@ Configure via environment variables or `EnvyroConfig`:
 ## Deployment
 
 ### Docker (Coming Soon)
+
 ```bash
 docker-compose up -d
 ```
 
 ### VPS Deployment
+
 1. Install PostgreSQL with pgvector
 2. Install Python dependencies
 3. Initialize database
@@ -297,8 +375,9 @@ For inquiries about the Envyro project, visit: envyro.club
 
 ---
 
-*"Welcome to the Digital Oasis 🌳"*
-# Enviro
+### "Welcome to the Digital Oasis 🌳"
+
+## Enviro
 
 **Next-Generation Post-Containerization Engine**
 
@@ -446,6 +525,7 @@ cargo build --release
 ```
 
 This produces:
+
 - `target/release/enviro` - Main binary
 - `target/release/libenviro_core.{a,so}` - Rust library
 - Linked Zig static library (`libenviro_zig.a`)
@@ -559,4 +639,4 @@ MIT OR Apache-2.0
 
 Contributions welcome! This is a cutting-edge project exploring multi-language systems programming.
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines. 
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
