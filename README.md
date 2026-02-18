@@ -563,6 +563,16 @@ cd enviro-py
 python -m pytest
 ```
 
+## 📦 Releases
+
+Pre-built binaries for Linux, macOS, and Windows are available in [GitHub Releases](https://github.com/Deployed-Labs/Envyro/releases).
+
+See [RELEASE.md](RELEASE.md) for details on:
+- Creating new releases
+- Supported platforms
+- Download verification
+- Build configuration
+
 ## 📊 Performance Design Patterns
 
 Throughout the codebase, you'll find performance-first patterns:
