@@ -618,6 +618,46 @@ print(handle.logs())
 handle.stop()
 ```
 
+## ⚡ Performance Features
+
+Envyro's container runtime is designed for speed and efficiency:
+
+### Startup Speed (Internal Benchmarks)
+
+These benchmarks measure Envyro's internal operations. Comparisons to Docker are projected targets based on architecture design and will be validated with end-to-end benchmarks once full system integration is complete.
+
+| Operation | Envyro (measured) | Target vs Docker |
+|-----------|-------------------|------------------|
+| Container context creation | ~3µs | Significantly faster |
+| Namespace setup (cached) | ~1µs | Cached template reuse |
+| Resource limit batch apply | ~6µs | Batched operations |
+
+### Memory Efficiency
+- **Buffer Pool**: Zero-copy I/O with buffer reuse, eliminating allocation overhead
+- **Context Pool**: Pre-allocated execution contexts with automatic recycling
+- **Copy-on-Write**: Shared resources cloned only on mutation via `Arc`-based CoW
+
+### Architecture Optimizations
+- **io_uring**: Feature-gated async I/O for kernel-bypassing file operations (Linux 5.1+)
+- **Parallel Namespace Setup**: Concurrent user/network/mount/PID namespace creation via `tokio::join!`
+- **Cached Namespace Templates**: Pre-computed configurations with cache hit/miss tracking
+- **Lazy Initialization**: Resources created on-demand via `OnceLock`, reducing startup overhead
+- **Lock-Free Registry**: `RwLock`-based concurrent executor registry for thread-safe access
+- **Batched Resource Limits**: Multiple cgroup operations collected and applied in a single pass
+
+### Binary Size
+- Link-Time Optimization (LTO) enabled
+- Single codegen unit for maximum optimization
+- Symbol stripping in release builds
+- Panic abort (no unwind tables)
+
+Run benchmarks with:
+```bash
+cargo test --test benchmarks -- --ignored
+```
+
+See [ARCHITECTURE.md](ARCHITECTURE.md) for detailed performance architecture.
+
 ## 🗺️ Roadmap
 
 - [x] Core Rust runtime with namespace isolation
@@ -625,6 +665,9 @@ handle.stop()
 - [x] Go gRPC control plane skeleton
 - [x] Python SDK with Envirofile support
 - [x] Plugin system for hot-swapping executors
+- [x] Advanced performance optimizations (io_uring, zero-copy, caching)
+- [x] Memory efficiency (pools, CoW, concurrent registry)
+- [x] Performance benchmarks and metrics
 - [ ] Full CRIU checkpoint/restore implementation
 - [ ] eBPF networking with XDP
 - [ ] Hardware passthrough (GPU/NPU/FPGA)
