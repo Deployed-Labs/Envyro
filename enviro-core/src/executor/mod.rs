@@ -228,6 +228,78 @@ impl Default for ExecutorRegistry {
     }
 }
 
+/// Thread-safe executor registry for concurrent access patterns.
+///
+/// Unlike [`ExecutorRegistry`], this variant wraps the inner map in
+/// `Arc<RwLock<…>>` so that multiple threads can register, look up, and
+/// remove executors without external synchronization.
+///
+/// # Performance Pattern: Read-Heavy RwLock
+/// Container runtimes read the registry far more often than they write to
+/// it.  `RwLock` allows unlimited concurrent readers while only blocking
+/// on the rare write path.
+pub struct ConcurrentExecutorRegistry {
+    executors: Arc<std::sync::RwLock<HashMap<String, Arc<dyn Executor>>>>,
+}
+
+impl ConcurrentExecutorRegistry {
+    /// Create an empty concurrent registry.
+    pub fn new() -> Self {
+        Self {
+            executors: Arc::new(std::sync::RwLock::new(HashMap::new())),
+        }
+    }
+
+    /// Register an executor under the given name (thread-safe).
+    pub fn register(&self, name: String, executor: Arc<dyn Executor>) {
+        self.executors
+            .write()
+            .expect("registry lock poisoned during register")
+            .insert(name, executor);
+    }
+
+    /// Look up an executor by name (thread-safe).
+    pub fn get(&self, name: &str) -> Option<Arc<dyn Executor>> {
+        self.executors
+            .read()
+            .expect("registry lock poisoned during get")
+            .get(name)
+            .cloned()
+    }
+
+    /// List all registered executor type names (thread-safe).
+    pub fn list_types(&self) -> Vec<String> {
+        self.executors
+            .read()
+            .expect("registry lock poisoned during list_types")
+            .keys()
+            .cloned()
+            .collect()
+    }
+
+    /// Remove an executor by name, returning it if it existed (thread-safe).
+    pub fn remove(&self, name: &str) -> Option<Arc<dyn Executor>> {
+        self.executors
+            .write()
+            .expect("registry lock poisoned during remove")
+            .remove(name)
+    }
+}
+
+impl Default for ConcurrentExecutorRegistry {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl Clone for ConcurrentExecutorRegistry {
+    fn clone(&self) -> Self {
+        Self {
+            executors: self.executors.clone(),
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -276,5 +348,66 @@ mod tests {
         let types = registry.list_types();
         assert_eq!(types.len(), 1);
         assert!(types.contains(&"native".to_string()));
+    }
+
+    #[test]
+    fn test_concurrent_registry_basic() {
+        let registry = ConcurrentExecutorRegistry::new();
+        let executor: Arc<dyn Executor> = Arc::new(NativeExecutor::new());
+
+        registry.register("native".to_string(), executor);
+        assert!(registry.get("native").is_some());
+        assert!(registry.get("nonexistent").is_none());
+
+        let types = registry.list_types();
+        assert_eq!(types.len(), 1);
+        assert!(types.contains(&"native".to_string()));
+    }
+
+    #[test]
+    fn test_concurrent_registry_remove() {
+        let registry = ConcurrentExecutorRegistry::new();
+        let executor: Arc<dyn Executor> = Arc::new(NativeExecutor::new());
+
+        registry.register("native".to_string(), executor);
+        let removed = registry.remove("native");
+        assert!(removed.is_some());
+        assert!(registry.get("native").is_none());
+        assert!(registry.remove("native").is_none());
+    }
+
+    #[test]
+    fn test_concurrent_registry_threaded_access() {
+        let registry = ConcurrentExecutorRegistry::new();
+        let executor: Arc<dyn Executor> = Arc::new(NativeExecutor::new());
+        registry.register("native".to_string(), executor);
+
+        let mut handles = Vec::new();
+        for i in 0..8 {
+            let reg = registry.clone();
+            handles.push(std::thread::spawn(move || {
+                // Readers: look up the pre-registered executor.
+                assert!(reg.get("native").is_some());
+                // Writers: each thread registers its own entry.
+                let exec: Arc<dyn Executor> = Arc::new(NativeExecutor::new());
+                reg.register(format!("thread-{i}"), exec);
+            }));
+        }
+        for h in handles {
+            h.join().expect("thread panicked");
+        }
+
+        // All thread-specific executors should be present.
+        for i in 0..8 {
+            assert!(registry.get(&format!("thread-{i}")).is_some());
+        }
+        // Original entry still intact.
+        assert!(registry.get("native").is_some());
+    }
+
+    #[test]
+    fn test_concurrent_registry_default() {
+        let registry = ConcurrentExecutorRegistry::default();
+        assert!(registry.list_types().is_empty());
     }
 }
