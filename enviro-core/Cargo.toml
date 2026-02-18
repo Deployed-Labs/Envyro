@@ -54,11 +54,10 @@ path = "src/lib.rs"
 name = "enviro"
 path = "src/main.rs"
 
-[profile.release]
-opt-level = 3
-lto = true
-codegen-units = 1
-strip = true
+[[example]]
+name = "benchmark"
+path = "examples/benchmark.rs"
 
-[profile.bench]
-inherits = "release"
+[features]
+default = []
+io_uring = []
