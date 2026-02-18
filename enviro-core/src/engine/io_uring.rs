@@ -16,9 +16,9 @@
 //! integration. When disabled (the default), stub implementations return
 //! informative errors, keeping the dependency tree light.
 
-use anyhow::{Context, Result};
+use anyhow::Result;
 use std::path::{Path, PathBuf};
-use tracing::{debug, info};
+use tracing::info;
 
 /// Desired queue depth for the io_uring submission queue.
 ///

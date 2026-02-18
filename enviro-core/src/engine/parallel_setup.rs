@@ -13,7 +13,7 @@
 //! - Per-namespace timing data enables bottleneck identification
 //! - Failed namespaces are reported individually without aborting siblings
 
-use anyhow::{Context, Result};
+use anyhow::Result;
 use std::fmt;
 use std::time::{Duration, Instant};
 use tracing::{debug, info};
