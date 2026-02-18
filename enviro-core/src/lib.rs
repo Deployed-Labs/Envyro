@@ -18,9 +18,17 @@ pub mod perf;
 pub mod plugin;
 pub mod runtime;
 
+pub use engine::buffer::{BufferPool, ZeroCopyBuffer};
+pub use engine::cow_resources::{CowResource, SharedResourceManager};
 pub use engine::isolation::Isolation;
-pub use executor::Executor;
-pub use memory::BufferPool;
+pub use engine::io_uring::IoUringManager;
+pub use engine::lazy_init::{LazyResource, LazyResourcePool};
+pub use engine::memory_pool::{ContextPool, PoolStats};
+pub use engine::namespace_cache::{NamespaceCache, NamespaceTemplate};
+pub use engine::parallel_setup::{ParallelNamespaceSetup, ParallelSetupReport, SetupResult};
+pub use engine::resource_limits::{OptimizedResourceLimits, ResourceLimitBatch, ResourceProfile};
+pub use executor::{ConcurrentExecutorRegistry, Executor};
+pub use memory::BufferPool as MemoryBufferPool;
 pub use perf::PerfMetrics;
 pub use runtime::{FastRuntime, FastStartConfig};
 
