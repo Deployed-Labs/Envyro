@@ -620,14 +620,17 @@ handle.stop()
 
 ## ⚡ Performance Features
 
-Envyro's container runtime is designed for speed and efficiency, outperforming traditional container runtimes:
+Envyro's container runtime is designed for speed and efficiency:
 
-### Startup Speed
-| Operation | Envyro | Docker | Improvement |
-|-----------|--------|--------|-------------|
-| Container context creation | ~3µs | ~50ms | ~16,000x |
-| Namespace setup (cached) | ~1µs | ~10ms | ~10,000x |
-| Resource limit batch apply | ~6µs | ~500µs | ~80x |
+### Startup Speed (Internal Benchmarks)
+
+These benchmarks measure Envyro's internal operations. Comparisons to Docker are projected targets based on architecture design and will be validated with end-to-end benchmarks once full system integration is complete.
+
+| Operation | Envyro (measured) | Target vs Docker |
+|-----------|-------------------|------------------|
+| Container context creation | ~3µs | Significantly faster |
+| Namespace setup (cached) | ~1µs | Cached template reuse |
+| Resource limit batch apply | ~6µs | Batched operations |
 
 ### Memory Efficiency
 - **Buffer Pool**: Zero-copy I/O with buffer reuse, eliminating allocation overhead

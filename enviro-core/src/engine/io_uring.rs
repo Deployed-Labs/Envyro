@@ -20,6 +20,11 @@ use anyhow::Result;
 use std::path::{Path, PathBuf};
 use tracing::info;
 
+#[cfg(feature = "io_uring")]
+use anyhow::Context;
+#[cfg(feature = "io_uring")]
+use tracing::debug;
+
 /// Desired queue depth for the io_uring submission queue.
 ///
 /// 256 entries provides a good balance between memory usage and throughput
