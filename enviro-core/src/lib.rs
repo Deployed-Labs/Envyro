@@ -15,7 +15,10 @@ pub mod executor;
 pub mod ffi;
 pub mod plugin;
 
+pub use engine::buffer::{BufferPool, ZeroCopyBuffer};
 pub use engine::isolation::Isolation;
+pub use engine::io_uring::IoUringManager;
+pub use engine::namespace_cache::{NamespaceCache, NamespaceTemplate};
 pub use executor::Executor;
 
 use anyhow::Result;
