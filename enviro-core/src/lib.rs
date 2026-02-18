@@ -13,10 +13,16 @@
 pub mod engine;
 pub mod executor;
 pub mod ffi;
+pub mod memory;
+pub mod perf;
 pub mod plugin;
+pub mod runtime;
 
 pub use engine::isolation::Isolation;
 pub use executor::Executor;
+pub use memory::BufferPool;
+pub use perf::PerfMetrics;
+pub use runtime::{FastRuntime, FastStartConfig};
 
 use anyhow::Result;
 use tracing::info;
