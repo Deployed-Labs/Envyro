@@ -16,13 +16,15 @@ pub mod ffi;
 pub mod plugin;
 
 pub use engine::buffer::{BufferPool, ZeroCopyBuffer};
+pub use engine::cow_resources::{CowResource, SharedResourceManager};
 pub use engine::isolation::Isolation;
 pub use engine::io_uring::IoUringManager;
 pub use engine::lazy_init::{LazyResource, LazyResourcePool};
+pub use engine::memory_pool::{ContextPool, PoolStats};
 pub use engine::namespace_cache::{NamespaceCache, NamespaceTemplate};
 pub use engine::parallel_setup::{ParallelNamespaceSetup, ParallelSetupReport, SetupResult};
 pub use engine::resource_limits::{OptimizedResourceLimits, ResourceLimitBatch, ResourceProfile};
-pub use executor::Executor;
+pub use executor::{ConcurrentExecutorRegistry, Executor};
 
 use anyhow::Result;
 use tracing::info;
