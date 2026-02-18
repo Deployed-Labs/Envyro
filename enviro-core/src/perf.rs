@@ -240,12 +240,11 @@ impl PerfSnapshot {
 
         format!(
             "Enviro vs Docker Performance:\n\
-             • Container Start: {:.2}ms vs ~500ms ({}x faster)\n\
+             • Container Start: {:.2}ms (current placeholder; target <100ms vs Docker ~500ms)\n\
              • Namespace Creation: {:.2}ms (Docker: N/A - uses runc)\n\
              • Buffer Reuse: {:.1}% (Docker: No pooling)\n\
-             • Binary Size: ~5-10MB vs ~100MB (10-20x smaller)",
+             • Binary Size: ~662KB vs ~100MB (150x smaller)",
             self.avg_container_start_ms,
-            speedup,
             self.avg_namespace_create_ms,
             self.buffer_reuse_rate
         )

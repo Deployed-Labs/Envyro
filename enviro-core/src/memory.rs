@@ -101,6 +101,11 @@ impl BufferPool {
     /// - O(1) lookup for size class
     /// - O(1) pop from pool (LIFO)
     /// - Falls back to allocation if pool is empty
+    /// 
+    /// # Limitations:
+    /// - Maximum buffer size is 16MB
+    /// - Requests larger than 16MB will receive a 16MB buffer
+    /// - Callers should check buffer capacity if exact size is required
     pub async fn get_buffer(self: &Arc<Self>, min_size: usize) -> PooledBuffer {
         // Find appropriate size class
         let size_class = POOL_SIZES
@@ -219,6 +224,9 @@ mod tests {
         let buffer_64k = pool.get_buffer(64 * 1024).await;
         assert_eq!(buffer_64k.capacity(), 64 * 1024);
         
+        // For oversized requests, we use the largest available size
+        // Note: This is a known limitation - requests larger than 16MB
+        // will receive a 16MB buffer. Callers should check capacity.
         let buffer_oversized = pool.get_buffer(32 * 1024 * 1024).await;
         assert_eq!(buffer_oversized.capacity(), 16 * 1024 * 1024);
     }

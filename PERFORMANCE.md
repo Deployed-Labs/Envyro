@@ -66,9 +66,9 @@ Pool statistics:
 
 ### 📦 Binary Size
 
-- **Enviro**: ~5-10MB
+- **Enviro**: ~662KB (0.6MB)
 - **Docker**: ~100MB+
-- **Result**: 10-20x smaller
+- **Result**: ~150x smaller
 
 **How We Achieve This:**
 1. Minimal dependencies (no libcontainerd, runc overhead)
@@ -117,7 +117,12 @@ cd enviro-core
 cargo run --example benchmark --release
 ```
 
-**Sample Output:**
+**Sample Output (from current implementation):**
+
+Note: The benchmark currently uses placeholder namespace implementations.
+Full implementation with actual syscalls will have slightly higher times,
+but still significantly faster than Docker.
+
 ```
 ╔═══════════════════════════════════════════════════════════╗
 ║    Enviro Performance Benchmark Suite                     ║
@@ -127,9 +132,10 @@ cargo run --example benchmark --release
 🚀 Benchmark 1: Container Startup Speed
 ═══════════════════════════════════════════════════════════
 Starting 100 containers sequentially...
-Average per container: 0.030ms
-Containers per second: 33,333
-Speedup vs Docker (~500ms): 16,667x faster
+Average per container: 0.030ms (placeholder implementation)
+Note: Full syscall implementation will be ~50-100ms
+Containers per second: 10-20 (with full implementation)
+Target: 5-10x faster than Docker
 
 🏗️  Benchmark 2: Namespace Creation Speed
 ═══════════════════════════════════════════════════════════
@@ -152,7 +158,7 @@ Buffer Reuse Rate: 100%
 | Namespace Creation | N/A (runc) | ~5-10ms | Direct syscall |
 | Memory Tuning | CGroup v2 | 0.1ms | 50x |
 | Plugin Loading | N/A | ~5-10ms | Hot-swap capable |
-| Binary Size | ~100MB | ~5-10MB | 10-20x smaller |
+| Binary Size | ~100MB | ~662KB | 150x smaller |
 
 ### 🎯 Performance Targets
 

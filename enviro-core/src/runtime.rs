@@ -123,7 +123,7 @@ impl FastRuntime {
         Ok(ContainerHandle {
             id: container_id.to_string(),
             namespace_id,
-            runtime: Arc::new(self.clone()),
+            runtime: self.clone(),
         })
     }
 
@@ -254,7 +254,13 @@ impl Clone for FastRuntime {
 
 impl Default for FastRuntime {
     fn default() -> Self {
-        Self::new().as_ref().clone()
+        Self {
+            config: FastStartConfig::default(),
+            isolation: Arc::new(Isolation::with_defaults()),
+            buffer_pool: BufferPool::new(),
+            metrics: PerfMetrics::new(),
+            namespace_cache: Arc::new(RwLock::new(Vec::new())),
+        }
     }
 }
 
@@ -262,7 +268,7 @@ impl Default for FastRuntime {
 pub struct ContainerHandle {
     id: String,
     namespace_id: u64,
-    runtime: Arc<FastRuntime>,
+    runtime: FastRuntime,
 }
 
 impl ContainerHandle {
