@@ -28,7 +28,8 @@ pub use engine::namespace_cache::{NamespaceCache, NamespaceTemplate};
 pub use engine::parallel_setup::{ParallelNamespaceSetup, ParallelSetupReport, SetupResult};
 pub use engine::resource_limits::{OptimizedResourceLimits, ResourceLimitBatch, ResourceProfile};
 pub use executor::{ConcurrentExecutorRegistry, Executor};
-pub use memory::BufferPool as MemoryBufferPool;
+// Note: memory::BufferPool is the original pool used by runtime module
+// For new code, use engine::buffer::BufferPool which is the optimized zero-copy implementation
 pub use perf::PerfMetrics;
 pub use runtime::{FastRuntime, FastStartConfig};
 
