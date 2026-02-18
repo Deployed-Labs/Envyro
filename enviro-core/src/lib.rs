@@ -22,7 +22,7 @@ pub use engine::isolation::Isolation;
 pub use executor::Executor;
 pub use memory::BufferPool;
 pub use perf::PerfMetrics;
-pub use runtime::FastRuntime;
+pub use runtime::{FastRuntime, FastStartConfig};
 
 use anyhow::Result;
 use tracing::info;
