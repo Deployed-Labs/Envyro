@@ -48,7 +48,7 @@ Envyro-Core is a custom Transformer-based Language Model with an integrated Long
 pip install -r requirements.txt
 ```
 
-1. **Set Up Database**
+2. **Set Up Database**
 
 ```bash
 # Create PostgreSQL database
@@ -61,7 +61,7 @@ psql -d envyro -f init_db.sql
 python setup_admiral.py
 ```
 
-1. **Configure Environment**
+3. **Configure Environment**
 
 ```bash
 # Copy example environment file
@@ -72,7 +72,7 @@ cp .env.example .env
 nano .env
 ```
 
-1. **Launch Envyro Web Interface (Recommended)**
+4. **Launch Envyro Web Interface (Recommended)**
 
 ```bash
 # Start the web-based launcher
@@ -175,23 +175,6 @@ if ai.memory:
 
 ## Project Structure
 
-Envyro/
-├── envyro_core/           # Core AI package
-│   ├── **init**.py
-│   ├── envyro_ai.py       # Main EnvyroAI class
-│   ├── config.py          # Configuration
-│   ├── models/            # Neural network models
-│   │   ├── **init**.py
-│   │   └── transformer.py # Custom Transformer
-│   ├── memory/            # Long-Term Memory
-│   │   ├── **init**.py
-│   │   └── vector_memory.py
-│   └── utils/             # Utilities
-├── requirements.txt       # Python dependencies
-├── init_db.sql           # Database schema
-├── example.py            # Usage example
-└── README.md             # This file
-
 ```
 Envyro/
 ├── envyro_core/           # Core AI package
@@ -206,9 +189,9 @@ Envyro/
 │   │   └── vector_memory.py
 │   └── utils/             # Utilities
 ├── requirements.txt       # Python dependencies
-├── init_db.sql           # Database schema
-├── example.py            # Usage example
-└── README.md             # This file
+├── init_db.sql            # Database schema
+├── example.py             # Usage example
+└── README.md              # This file
 ```
 
 ## The Cognitive Loop
@@ -684,6 +667,17 @@ See [ARCHITECTURE.md](ARCHITECTURE.md) for detailed performance architecture.
 - [ ] WebAssembly executor via wasmtime
 - [ ] Distributed control plane with etcd
 
+## 🌿 Development Branch
+
+Active development happens on the [`dev`](https://github.com/Deployed-Labs/Envyro/tree/dev) branch. The `main` branch tracks stable releases.
+
+```bash
+# Clone and switch to the dev branch
+git clone https://github.com/Deployed-Labs/Envyro.git
+cd Envyro
+git checkout dev
+```
+
 ## 📄 License
 
 MIT OR Apache-2.0
@@ -693,3 +687,5 @@ MIT OR Apache-2.0
 Contributions welcome! This is a cutting-edge project exploring multi-language systems programming.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+For questions or help, [open a Help issue](https://github.com/Deployed-Labs/Envyro/issues/new?template=help.md).

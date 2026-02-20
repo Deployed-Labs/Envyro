@@ -16,13 +16,11 @@ zig-out/
 *.dll
 *.exe
 *.test
-go.sum
 
 # Python
 __pycache__/
 *.py[cod]
 *$py.class
-*.so
 .Python
 build/
 develop-eggs/
@@ -39,25 +37,21 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+MANIFEST
 
 # Virtual environments
 venv/
 env/
 ENV/
 .venv
-pip-wheel-metadata/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
-.env
-.venv
-env/
-venv/
-ENV/
 env.bak/
 venv.bak/
+pip-wheel-metadata/
+share/python-wheels/
+
+# Environment secrets
+.env
+.env.local
 
 # IDE
 .vscode/
@@ -65,6 +59,9 @@ venv.bak/
 *.swp
 *.swo
 *~
+
+# Scratch / temp editor files
+.scratch/
 
 # Testing
 .pytest_cache/
@@ -80,17 +77,11 @@ weights/
 # Logs
 *.log
 
-# Environment
-.env
-.env.local
-
 # OS
 .DS_Store
 Thumbs.db
-.DS_Store
 
 # Build artifacts
-*.log
 *.out
 
 # Test coverage
