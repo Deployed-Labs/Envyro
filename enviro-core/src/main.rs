@@ -14,10 +14,6 @@ use enviro_core::registry::{self, Registry};
 use enviro_core::runtime::FastRuntime;
 use std::path::PathBuf;
 
-/// Enviro - Next-generation container runtime.
-///
-/// Build, run, and share lightweight environments faster than Docker.
-/// Get started: `enviro init` to scaffold a new Envirofile.
 #[derive(Parser)]
 #[command(
     name = "enviro",
@@ -233,11 +229,11 @@ async fn cmd_run(
     file: Option<PathBuf>,
     command: Option<String>,
     detach: bool,
-    name_override: Option<String>,
+    name: Option<String>,
 ) -> Result<()> {
     let (_path, ef) = resolve_envirofile(file)?;
 
-    let container_name = name_override.unwrap_or_else(|| ef.environment.name.clone());
+    let container_name = name.unwrap_or_else(|| ef.environment.name.clone());
     let run_cmd = command.unwrap_or_else(|| ef.run.command.clone());
 
     let runtime = FastRuntime::new();

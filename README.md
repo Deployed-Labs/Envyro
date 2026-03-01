@@ -366,6 +366,105 @@ For inquiries about the Envyro project, visit: envyro.club
 
 A zero-trust, high-concurrency container runtime that replaces traditional Docker daemons with a multi-language architecture built for performance and security.
 
+## ⚡ Quick Start (Simpler than Docker)
+
+```bash
+# 1. Initialize a new environment
+enviro init --name my-app
+
+# 2. Edit the generated Envirofile.toml (see below)
+
+# 3. Build it
+enviro build
+
+# 4. Run it
+enviro run
+
+# 5. Share it with the world
+enviro push
+```
+
+### Full CLI Reference
+
+| Command | Description |
+|---------|-------------|
+| `enviro init` | Scaffold a new `Envirofile.toml` in the current directory |
+| `enviro build` | Build an environment from an Envirofile |
+| `enviro run` | Run an environment (use `-d` for detached mode) |
+| `enviro stop <id>` | Stop a running environment |
+| `enviro ps` | List running environments (`-a` for all) |
+| `enviro logs <id>` | View environment logs (`-f` to follow) |
+| `enviro push` | Push environment to the registry |
+| `enviro pull <name>` | Pull environment from the registry |
+| `enviro search <query>` | Search the environment registry |
+| `enviro registry list` | List locally stored environments |
+| `enviro registry remove <name>` | Remove a local environment |
+| `enviro metrics` | Show runtime performance metrics |
+| `enviro validate` | Validate an Envirofile without building |
+
+## 📝 Envirofile – Simpler than Dockerfile
+
+Instead of imperative Dockerfiles, Enviro uses **declarative TOML**:
+
+```toml
+# Envirofile.toml
+[environment]
+name = "my-web-app"
+base = "ubuntu:22.04"
+description = "A production web application"
+version = "1.0.0"
+tags = ["web", "python"]
+
+[packages]
+apt = ["nginx", "curl"]
+pip = ["flask", "gunicorn"]
+
+[env]
+PORT = "8080"
+APP_ENV = "production"
+
+[run]
+command = "gunicorn app:app"
+workdir = "/opt/app"
+ports = [8080]
+
+[resources]
+cpu = 2.0
+memory = "1g"
+pids = 200
+
+[health]
+command = "curl -f http://localhost:8080/health"
+interval = 30
+timeout = 10
+retries = 3
+```
+
+**Why Envirofile is better than Dockerfile:**
+- **Declarative**: Say *what* you want, not *how* to build it
+- **Type-safe**: TOML parsing catches errors before build time
+- **Resource-aware**: CPU, memory, and PID limits are first-class
+- **Health checks built-in**: No separate HEALTHCHECK instruction
+- **Registry-ready**: Tags and metadata for instant sharing
+
+## 🌐 Environment Registry
+
+Share and discover environments just like npm or crates.io:
+
+```bash
+# Push your environment
+enviro push
+
+# Search for environments
+enviro search "web flask"
+
+# Pull someone else's environment
+enviro pull username/web-app
+
+# List your local environments
+enviro registry list
+```
+
 ## 🚀 Core Architecture
 
 Enviro combines the strengths of four languages:
@@ -384,7 +483,11 @@ enviro/
 │   │   ├── engine/     # Isolation and namespace management
 │   │   ├── executor/   # Language-agnostic execution trait
 │   │   ├── ffi/        # Foreign function interface (Zig/Go)
-│   │   └── plugin/     # Dynamic plugin loading system
+│   │   ├── plugin/     # Dynamic plugin loading system
+│   │   ├── envirofile.rs # Envirofile TOML parser
+│   │   ├── registry.rs # Environment registry (push/pull/search)
+│   │   ├── monitor.rs  # Container monitoring and lifecycle
+│   │   └── main.rs     # CLI with subcommands
 │   └── build.rs        # Orchestrates Zig + Go compilation
 │
 ├── enviro-zig/         # Zig C-ABI bridge
@@ -661,6 +764,11 @@ See [ARCHITECTURE.md](ARCHITECTURE.md) for detailed performance architecture.
 - [x] Advanced performance optimizations (io_uring, zero-copy, caching)
 - [x] Memory efficiency (pools, CoW, concurrent registry)
 - [x] Performance benchmarks and metrics
+- [x] CLI with subcommands (init, build, run, stop, ps, logs, push, pull, search)
+- [x] Declarative Envirofile format (TOML-based)
+- [x] Local environment registry (store, search, share)
+- [x] Container monitoring and lifecycle tracking
+- [ ] Remote registry API (HTTP-based hub)
 - [ ] Full CRIU checkpoint/restore implementation
 - [ ] eBPF networking with XDP
 - [ ] Hardware passthrough (GPU/NPU/FPGA)
