@@ -11,11 +11,14 @@
 //! - Thread-per-core architecture with work stealing
 
 pub mod engine;
+pub mod envirofile;
 pub mod executor;
 pub mod ffi;
 pub mod memory;
+pub mod monitor;
 pub mod perf;
 pub mod plugin;
+pub mod registry;
 pub mod runtime;
 
 pub use engine::buffer::{BufferPool, ZeroCopyBuffer};
